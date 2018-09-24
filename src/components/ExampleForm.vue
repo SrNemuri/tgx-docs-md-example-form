@@ -3,8 +3,46 @@
   <link rel="stylesheet" href="https://unpkg.com/vue-multiselect@2.1.0/dist/vue-multiselect.min.css">
     <b-form @submit="onSubmit" @reset="onReset">
       <b-row>
-          <b-col cols="4">
+          <b-col cols="3">
             <!-- description="We'll never share your email with anyone else." -->
+            <b-form-group label="Title:">
+              <b-form-input type="text"
+                            v-model="form.title"
+                            required
+                            placeholder="Title">
+              </b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-col cols="3">
+            <b-form-group label="Page title:">
+              <b-form-input type="text"
+                            v-model="form.pagetitle"
+                            required
+                            placeholder="Enter page title">
+              </b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-col cols="4">
+            <b-form-group label="Description:">
+               <b-form-input type="text"
+                            v-model="form.description"
+                            required
+                            placeholder="Description">
+              </b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-col cols="2">
+            <b-form-group label="Weight:">
+              <b-form-input type="text"
+                            v-model="form.weight"
+                            required
+                            placeholder="Weight">
+              </b-form-input>
+            </b-form-group>
+            </b-col>
+      </b-row>
+      <b-row>
+          <b-col cols="4">
             <b-form-group label="Default API key:">
               <b-form-input type="text"
                             v-model="form.apiKey"
@@ -40,7 +78,7 @@
           </b-col>
       </b-row>
 
-      <div v-for="example in form.examples.slice(currentPage -1, perPage)">
+      <div v-for="example in getPageExamples">
         <hr>
         <b-row >
           <b-col cols="5">
@@ -139,6 +177,12 @@ export default {
   data() {
     return {
       form: {
+        title: '',
+        pagetitle: '',
+        description: '',
+        icon: '',
+        weight: '1',
+        alwaysopen: false,
         default_ak: '',
         default_user: '',
         examples: []
@@ -182,7 +226,7 @@ export default {
     },
     addRow() {      
         this.form.examples.push({
-          name: '',
+          name: this.form.examples.length,
           user: '',
           gist: '',
           api_key: '',
@@ -193,7 +237,26 @@ export default {
         });
       
       console.log(this.form.examples);
+    },
+    saveFile() {
+        const data = JSON.stringify(this.arr)
+        const blob = new Blob([data], {type: 'text/plain'})
+        const e = document.createEvent('MouseEvents'),
+        a = document.createElement('a');
+        a.download = "test.json";
+        a.href = window.URL.createObjectURL(blob);
+        a.dataset.downloadurl = ['text/json', a.download, a.href].join(':');
+        e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        a.dispatchEvent(e);
+    }
+  },
+  computed: {
+    getPageExamples(){
+      const curr = this.currentPage - 1;
+      const base = curr * this.perPage;
+      return this.form.examples.slice(base, this.perPage + base);
     }
   }
+
 };
 </script>
