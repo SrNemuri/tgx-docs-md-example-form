@@ -1,112 +1,155 @@
 <template>
 <b-container class="bv-example-row">
-    <b-form @submit="onSubmit" @reset="onReset" v-if="show">
-    <b-row>
-        <b-col cols="4">
-          <!-- description="We'll never share your email with anyone else." -->
-          <b-form-group label="Default API key:">
-            <b-form-input type="text"
-                          v-model="form.apiKey"
-                          required
-                          placeholder="Enter API key">
-            </b-form-input>
-          </b-form-group>
-        </b-col>
-        <b-col cols="3">
-          <b-form-group label="Default user:">
-            <b-form-input type="text"
-                          v-model="form.defaultUser"
-                          required
-                          placeholder="Enter default user">
-            </b-form-input>
-          </b-form-group>
-        </b-col>
-        <b-col cols="5">
-          <b-form-group label="Add available options:">
-            <b-form-row>
-              <b-col cols="10">
-                <b-form-input type="text"
-                              v-model="form.defaultUser"
-                              required
-                              placeholder="Enter available option">
-                </b-form-input>
-              </b-col>
-              <b-col  cols="2">
-                <b-button v-on:click="onAddOption" variant="info">Add</b-button>
-              </b-col>
-            </b-form-row>
-          </b-form-group>
-        </b-col>
-    </b-row>
+  <link rel="stylesheet" href="https://unpkg.com/vue-multiselect@2.1.0/dist/vue-multiselect.min.css">
+    <b-form @submit="onSubmit" @reset="onReset">
+      <b-row>
+          <b-col cols="4">
+            <!-- description="We'll never share your email with anyone else." -->
+            <b-form-group label="Default API key:">
+              <b-form-input type="text"
+                            v-model="form.apiKey"
+                            required
+                            placeholder="Enter API key">
+              </b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-col cols="3">
+            <b-form-group label="Default user:">
+              <b-form-input type="text"
+                            v-model="form.defaultUser"
+                            required
+                            placeholder="Enter default user">
+              </b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-col cols="5">
+            <b-form-group label="Add available options:">
+              <b-form-row>
+                <b-col cols="10">
+                  <b-form-input type="text"
+                                v-model="lastAdded"
+                                required
+                                placeholder="Enter available option">
+                  </b-form-input>
+                </b-col>
+                <b-col  cols="2">
+                  <b-button v-on:click="onAddOption" variant="info">Add</b-button>
+                </b-col>
+              </b-form-row>
+            </b-form-group>
+          </b-col>
+      </b-row>
 
-    <!-- <b-row>
-      <b-col>
-        <b-form-group label="Default user:">
-            <b-form-input type="text"
-                          v-model="form.defaultUser"
+      <div v-for="example in form.examples">
+        <hr>
+        <b-row >
+          <b-col cols="5">
+            <b-form-group label="Selected options:">
+              <multiselect v-model="example.selected_options" :options="available_options" :multiple="true" :disabled="available_options.length === 0" :loading="loadingMultiselect"></multiselect>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col cols="3">
+            <b-form-group label="Name:">
+              <b-form-input type="text"
+                          v-model="example.name"
                           required
-                          placeholder="Enter default user">
-            </b-form-input>
-          </b-form-group>
-      </b-col>
-    </b-row> -->
+                          placeholder="Example name">
+              </b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-col cols="3">
+            <b-form-group label="User:">
+              <b-form-input type="text"
+                            v-model="example.user"
+                            placeholder="GitHub user">
+              </b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-col cols="3">
+            <b-form-group label="Gist:">
+              <b-form-input type="text"
+                            v-model="example.gist"
+                            required
+                            placeholder="Github gist id">
+              </b-form-input>
+            </b-form-group>
+          </b-col>
+          <b-col cols="3">
+            <b-form-group label="API key:">
+              <b-form-input type="text"
+                            v-model="example.api_key"
+                            placeholder="API key">
+              </b-form-input>
+            </b-form-group>
+          </b-col>
+        </b-row>
+        <b-row>
+          <b-col>
+            <b-form-group label="Description:">
+              <b-form-textarea v-model="example.description"
+                            placeholder="Description"
+                            :rows="3"
+                            :max-rows="6">
+              </b-form-textarea>
+            </b-form-group>
+          </b-col>
+        </b-row>
+      </div>
+
+      <b-row>
+        <b-col cols="2">
+          <b-button v-on:click="addRow" variant="success">Add row</b-button>
+        </b-col>
+      </b-row>
+
+      <br>
       
-      
-      <b-form-group label="Food:">
-        <b-form-select :options="foods"
-                      required
-                      v-model="form.food">
-        </b-form-select>
-      </b-form-group>
-       <b-form-group label="Choose options:">
-        <b-form-select :options="options"
-                      required
-                      v-model="form.options">
-        </b-form-select>
-      </b-form-group>
-      <b-form-group id="exampleGroup4">
-        <b-form-checkbox-group v-model="form.checked" id="exampleChecks">
-          <b-form-checkbox value="me">Check me out</b-form-checkbox>
-          <b-form-checkbox value="that">Check that out</b-form-checkbox>
-        </b-form-checkbox-group>
-      </b-form-group>
-      <b-button type="submit" variant="primary">Submit</b-button>
-      <b-button type="reset" variant="danger">Reset</b-button>
+      <b-row>
+        <b-col cols="3" offset="10">
+          <b-button type="submit" variant="primary" class="mr-2">Submit</b-button>
+          <b-button type="reset" variant="danger">Reset</b-button>
+        </b-col>
+      </b-row>
     </b-form>
-      </b-container>
+
+<p>----</p>
+    <b-table :items="form.examples" :current-page="currentPage" :per-page="perPage">
+      <template scope="item">
+      <div>{{item.name}}</div>
+    </template>
+    
+  </b-table>
+
+  <div>
+    <b-pagination size="md" :total-rows="form.examples.length" :per-page="perPage" v-model="currentPage" />
+  </div>
+  </b-container>  
 </template>
 
 <script>
-// import { validationMixin } from 'vuelidate';
-// import {
-//   required,
-//   email,
-//   minLength,
-//   maxLength
-// } from 'vuelidate/lib/validators';
+
+
+
+
+  
 
 export default {
   name: 'ExampleForm',
   data() {
     return {
       form: {
-        email: '',
-        name: '',
         default_ak: '',
         default_user: '',
-        available_options: [],
-        food: null,
-        checked: []
+        examples: []
       },
-      foods: [
-        { text: 'Select One', value: null },
-        'Carrots',
-        'Beans',
-        'Tomatoes',
-        'Corn'
-      ],
-      default_options: {},
-      show: true
+      perPage: 2,
+      currentPage: 1,
+      lastAdded: '',
+      available_options: [],
+      value: [],
+      loadingMultiselect: false
     };
   },
   methods: {
@@ -122,16 +165,38 @@ export default {
       this.form.default_ak = '';
       this.form.default_user = '';
       this.available_options = [];
-      this.form.food = null;
-      this.form.checked = [];
-      /* Trick to reset/clear native browser form validation state */
-      this.show = false;
-      this.$nextTick(() => {
-        this.show = true;
-      });
     },
     onAddOption: function() {
-      console.log('adding');
+      if (!this.lastAdded) {
+        return;
+      }
+      const self = this;
+
+      this.loadingMultiselect = true;
+
+      this.available_options.push(this.lastAdded);
+
+      this.lastAdded = '';
+
+      this.loadingMultiselect = false;
+      console.log(this.available_options);
+    },
+    addRow() {      
+        this.form.examples.push({
+          name: '',
+          user: '',
+          gist: '',
+          api_key: '',
+          description: '',
+          available_options: [],
+          selected_options: []
+
+        });
+      
+      console.log(this.form.examples);
+    },
+    pageCount() {
+      return Math.floor(this.form.examples.length / this.perPage);
     }
   }
 };
