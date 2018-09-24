@@ -40,7 +40,7 @@
           </b-col>
       </b-row>
 
-      <div v-for="example in form.examples">
+      <div v-for="example in form.examples.slice(currentPage -1, perPage)">
         <hr>
         <b-row >
           <b-col cols="5">
@@ -114,13 +114,12 @@
       </b-row>
     </b-form>
 
-<p>----</p>
-    <b-table :items="form.examples" :current-page="currentPage" :per-page="perPage">
+<!-- <b-table :items="form.examples" :current-page="currentPage" :per-page="perPage">
       <template scope="item">
       <div>{{item.name}}</div>
     </template>
     
-  </b-table>
+  </b-table> -->
 
   <div>
     <b-pagination size="md" :total-rows="form.examples.length" :per-page="perPage" v-model="currentPage" />
@@ -194,9 +193,6 @@ export default {
         });
       
       console.log(this.form.examples);
-    },
-    pageCount() {
-      return Math.floor(this.form.examples.length / this.perPage);
     }
   }
 };
